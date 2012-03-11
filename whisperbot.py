@@ -192,7 +192,7 @@ def main():
         si,so,se = select.select([sys.stdin],[],[], 0.01)
         for s in si:
             if s == sys.stdin:
-                message = sys.stdin.readline()
+                message = sys.stdin.readline()[:-1]
                 data = "%s : %s" % (charactername, message)
                 mapserv.sendall("\x8c\0%s%s" % (struct.pack("<H", len(data)+4), data))
                 time.sleep(0.5)
