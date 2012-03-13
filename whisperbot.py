@@ -6,6 +6,7 @@ import socket
 import struct
 import time
 import sys
+import re
 
 packet_lengths = [
    10,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
@@ -186,7 +187,7 @@ def main():
                     time.sleep(3)
             elif packet.startswith("\x8d\0"): # char speech
                 message = packet[8:]
-                print message
+                print re.sub(r'(##[0-9])',r'\1 ',message)
 #                mapserv.sendall(whisper(master, message))
                 time.sleep(0.5)
         si,so,se = select.select([sys.stdin],[],[], 0.01)
@@ -195,7 +196,7 @@ def main():
                 message = sys.stdin.readline()[:-1]
                 data = "%s : %s" % (charactername, message)
                 mapserv.sendall("\x8c\0%s%s" % (struct.pack("<H", len(data)+4), data))
-                time.sleep(0.5)
+#                time.sleep(0.5)
 
 
 if __name__ == '__main__':
