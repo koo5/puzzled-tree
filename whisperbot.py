@@ -7,6 +7,10 @@ import struct
 import time
 import sys
 import re
+import os
+
+# http://stackoverflow.com/questions/566746/how-to-get-console-window-width-in-python
+console_width = int(os.popen('stty size', 'r').read().split()[1])
 
 packet_lengths = [
    10,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
@@ -186,10 +190,12 @@ def main():
                 if "automaticly banned for spam" in message:
                     time.sleep(3)
             elif packet.startswith("\x8d\0"): # char speech
-                message = packet[8:]
-                print re.sub(r'(##[0-9])',r'\1 ',message)
+                message = re.sub(r'(##[0-9])',r'\1 ',packet[8:])
+                print message
+                if len(message) > console_width:
+                    print ""
 #                mapserv.sendall(whisper(master, message))
-                time.sleep(0.5)
+                time.sleep(0.1)
         si,so,se = select.select([sys.stdin],[],[], 0.01)
         for s in si:
             if s == sys.stdin:
