@@ -195,12 +195,13 @@ def main():
                 if "automaticly banned for spam" in message:
                     time.sleep(3)
             elif packet.startswith("\x8d\0"): # char speech
-                message = re.sub(r'(##[0-9])',color_replacement_regex,packet[8:])
+                message = re.sub(r'(##[0-9])',color_replacement_regex,packet[8:-1])
                 print "[" + date('%H:%M:%S') + "] " + message
                 if len(message) > console_width:
                     print ""
 #                mapserv.sendall(whisper(master, message))
                 file.write("[" + date('%H:%M:%S') + "] " + message + "\n")
+                file.flush()
                 time.sleep(0.1)
         si,so,se = select.select([sys.stdin],[],[], 0.01)
         for s in si:
