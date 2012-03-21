@@ -1,6 +1,7 @@
 #!/usr/bin/python
 file = open("wlog.txt", "a")
 from config import *
+import string
 import select
 import socket
 import struct
@@ -207,6 +208,14 @@ def main():
         for s in si:
             if s == sys.stdin:
                 message = sys.stdin.readline()[:-1]
+                if len(message) > 0:
+                    if message[0] == '/':
+                        if len(message) > 1:
+                            if (message[1] == 'q') or (message[1] == 'w'):
+                                nick = string.split(message)[1]
+                                text = string.join(string.split(message)[2:])
+                                mapserv.sendall(whisper(nick, text))
+                                break
                 data = "%s : %s" % (charactername, message)
                 mapserv.sendall("\x8c\0%s%s" % (struct.pack("<H", len(data)+4), data))
 		file.write("[" + date('%H:%M:%S') + "] " + "Me: " + message + "\n")
