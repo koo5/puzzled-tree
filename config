@@ -5,3 +5,5 @@ password = ""
 character =  0#slot character is in, 0 for first, 1 for second, 2 for third
 charactername = ""
 master = "" #character bot will direct public chat to
+sit = 0 # become inconspicuous
+color_replacement_regex = ''       #r'\1 ' to keep em

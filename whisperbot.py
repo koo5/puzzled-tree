@@ -1,5 +1,5 @@
 #!/usr/bin/python
-
+file = open("wlog.txt", "a")
 from config import *
 import select
 import socket
@@ -8,6 +8,7 @@ import time
 import sys
 import re
 import os
+from time import strftime as date
 
 # http://stackoverflow.com/questions/566746/how-to-get-console-window-width-in-python
 console_width = int(os.popen('stty size', 'r').read().split()[1])
@@ -97,6 +98,7 @@ def parse_ip(s):
 def whisper(nick, message):
     return "\x96\0%s%s%s" % (struct.pack("<H", len(message)+28), nick.ljust(24, '\0'), message)
 
+
 def main():
     login = socket.socket()
     login.connect((server, port))
@@ -172,7 +174,8 @@ def main():
         for packet in pb:
             if packet.startswith("\x73\0"): # connected
                 mapserv.sendall("\x7d\0") # map loaded
-                mapserv.sendall("\x89\0\0\0\0\0\x02") # sit
+                if sit:
+                    mapserv.sendall("\x89\0\0\0\0\0\x02") # sit
             elif packet.startswith("\x97\0"):
                 nick = packet[4:28].rstrip("\0")
                 message = packet[28:]
@@ -182,19 +185,22 @@ def main():
                     time.sleep(0.5)
                 elif nick not in gotresponse:
                     gotresponse.add(nick)
-                    mapserv.sendall(whisper(nick, "Please talk to %s." % master))
+                    file.write("[" + date('%H:%M:%S') + "] " + "!!! " + nick + ": " + message + "\n")
+                    print "[" + date('%H:%M:%S') + "] " + "!!! " + nick + ": " + message
+                    #mapserv.sendall(whisper(nick, "Please talk to %s." % master))
                     time.sleep(0.5)
             elif packet.startswith("\x8e\0"): # server speech
                 message = packet[4:]
-                print message
+                print "[" + date('%H:%M:%S') + "] " + message
                 if "automaticly banned for spam" in message:
                     time.sleep(3)
             elif packet.startswith("\x8d\0"): # char speech
-                message = re.sub(r'(##[0-9])',r'\1 ',packet[8:])
-                print message
+                message = re.sub(r'(##[0-9])',color_replacement_regex,packet[8:])
+                print "[" + date('%H:%M:%S') + "] " + message
                 if len(message) > console_width:
                     print ""
 #                mapserv.sendall(whisper(master, message))
+                file.write("[" + date('%H:%M:%S') + "] " + message + "\n")
                 time.sleep(0.1)
         si,so,se = select.select([sys.stdin],[],[], 0.01)
         for s in si:
@@ -202,8 +208,10 @@ def main():
                 message = sys.stdin.readline()[:-1]
                 data = "%s : %s" % (charactername, message)
                 mapserv.sendall("\x8c\0%s%s" % (struct.pack("<H", len(data)+4), data))
+		file.write("[" + date('%H:%M:%S') + "] " + "Me: " + message + "\n")
 #                time.sleep(0.5)
 
 
 if __name__ == '__main__':
     main()
+file.close()
