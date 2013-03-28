@@ -173,7 +173,13 @@ def main():
             break
         pb.feed(data)
         for packet in pb:
-            if packet.startswith("\x73\0"): # connected
+	    print [hex(ord(x)) for x in packet]
+            if packet.startswith('\xc0\0'): #smiley
+		    if packet[6] == '\2':
+		        print "o_0"
+    	                mapserv.sendall("\x00\xbf\x02") # smile back
+                        time.sleep(0.5)
+            elif packet.startswith("\x73\0"): # connected
                 mapserv.sendall("\x7d\0") # map loaded
                 if sit:
                     mapserv.sendall("\x89\0\0\0\0\0\x02") # sit
