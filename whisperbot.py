@@ -242,6 +242,12 @@ def main():
 					
 					time.sleep(0.1)
 
+				elif packet.startswith("\x97\0"):#a whisper
+					nick = packet[4:28].rstrip("\0")
+					message = packet[28:]
+					file.write("[" + date('%H:%M:%S') + "] " + "!!! " + nick + ": " + message + "\n")
+					print "[" + date('%H:%M:%S') + "] " + "!!! " + nick + ": " + message
+
 
 		except socket.timeout:
 			pass
