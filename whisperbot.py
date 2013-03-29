@@ -214,11 +214,12 @@ def main():
 					smile(2)
 
 				elif packet.startswith("\xc0\0"): #smiley
-					if packet[6] == '\2':
+					if be_confused_tree:
+						if packet[6] == '\2':
 #						if random.randint(0,1) == 1:
-						print "o_0"
-						time.sleep(0.5)
-						smile(2)
+							print "o_0"
+							time.sleep(0.5)
+							smile(2)
 #						else:
 #							print "pffft"
 
@@ -234,14 +235,14 @@ def main():
 						print ""
 					file.write("[" + date('%H:%M:%S') + "] " + message + "\n")
 					#file.flush()
-#					if (" : "+charactername.lower()) in message.lower():
-					(nick, msg) = message.split(" : ")
-					msg = msg.lower()
-					if msg.startswith(charactername.lower()):
-						if "shut up" in msg:
-							say("i can't do that yet:(")
-						if "help" in msg or "daddy" in msg or "mommy" in msg:
-							say("[@@https://github.com/koo5/puzzled-tree/blob/master/whisperbot.py |https://github.com/koo5/puzzled-tree/blob/master/whisperbot.py@@]")
+					if be_confused_tree:
+						(nick, msg) = message.split(" : ")
+						msg = msg.lower()
+						if msg.startswith(charactername.lower()):
+							if "shut up" in msg:
+								say("i can't do that yet:(")
+							if "help" in msg or "daddy" in msg or "mommy" in msg:
+								say("[@@https://github.com/koo5/puzzled-tree/blob/master/whisperbot.py |https://github.com/koo5/puzzled-tree/blob/master/whisperbot.py@@]")
 					
 					
 					time.sleep(0.1)
