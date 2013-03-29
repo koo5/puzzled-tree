@@ -12,6 +12,8 @@ import os
 from time import strftime as date
 #import random
 
+mapserv = None
+
 # http://stackoverflow.com/questions/566746/how-to-get-console-window-width-in-python
 console_width = int(os.popen('stty size', 'r').read().split()[1])
 
@@ -100,15 +102,16 @@ def parse_ip(s):
 def whisper(nick, message):
 	return "\x96\0%s%s%s" % (struct.pack("<H", len(message)+28), nick.ljust(24, '\0'), message)
 
-def smile(mapserv):
-	mapserv.sendall("\xbf\0\x02")
+def smile(number):
+	mapserv.sendall("\xbf\0"+(chr(number)))
 
-def say(mapserv, message):
+def say(message):
 	data = "%s : %s" % (charactername, message)
 	mapserv.sendall("\x8c\0%s%s" % (struct.pack("<H", len(data)+4), data))
 	file.write("[" + date('%H:%M:%S') + "] " + "Me: " + message + "\n")
 
 def main():
+	global mapserv
 	login = socket.socket()
 	login.connect((server, port))
 	print("login connected")
@@ -191,10 +194,10 @@ def main():
 								text = string.join(string.split(message)[2:])
 								mapserv.sendall(whisper(nick, text))
 								break
-							elif message[1] == '2':
-								smile(mapserv)
+							elif ord(message[1]) in range(ord('1'), ord('9')):
+								smile(ord(message[1]) - ord('0'))
 								break
-				say(mapserv, message)
+				say(message)
 
 		try:
 			data = mapserv.recv(1500)
@@ -208,14 +211,14 @@ def main():
 					mapserv.sendall("\x7d\0") # map loaded
 					if sit:
 						mapserv.sendall("\x89\0\0\0\0\0\x02") # sit
-					smile(mapserv)
+					smile(2)
 
 				elif packet.startswith("\xc0\0"): #smiley
 					if packet[6] == '\2':
 #						if random.randint(0,1) == 1:
 						print "o_0"
 						time.sleep(0.5)
-						smile(mapserv)
+						smile(2)
 #						else:
 #							print "pffft"
 
@@ -232,12 +235,13 @@ def main():
 					file.write("[" + date('%H:%M:%S') + "] " + message + "\n")
 					#file.flush()
 #					if (" : "+charactername.lower()) in message.lower():
-#						feedback = message.lower().split(" : "+charactername.lower())
-#						feedback[1] = feedback[1].lstrip(",: ")
-#					if feedback[1].startswith("shut up"):
-#						print "Okay."
-#					if "help" in feedback[1] or "daddy" in feedback[1]:
-#						  say(mapserv, "/url https://github.com/koo5/puzzled-tree/blob/master/whisperbot.py")
+					(nick, msg) = message.split(" : ")
+					msg = msg.lower()
+					if msg.startswith(charactername.lower()):
+						if "shut up" in msg:
+							say("i can't do that yet:(")
+						if "help" in msg or "daddy" in msg or "mommy" in msg:
+							say("[@@https://github.com/koo5/puzzled-tree/blob/master/whisperbot.py |https://github.com/koo5/puzzled-tree/blob/master/whisperbot.py@@]")
 					
 					
 					time.sleep(0.1)
